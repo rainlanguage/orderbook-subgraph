@@ -42,9 +42,11 @@ jobs:
       - name: install npm dependencies
         run: nix-shell --run init
 
-      - name: Graph deploy ethereum 
-        run: nix-shell --run "ts-node scripts/deploy.ts --contractAddress 0xce0a4f3e60178668c89f86d918a0585ca80e0f6d --subgraphName rainprotocol/orderbook-ethereum --network mainnet --graphAccessToken $THE_GRAPH_API_TOKEN"
-      
-      - name: Graph deploy polygon 
-        if: always()
-        run: nix-shell --run "ts-node scripts/deploy.ts --contractAddress 0x2de560ED9Ba8a6CDFe92e26862Ecb86e6e2d9705 --subgraphName rainprotocol/orderbook-sloshy --network matic --graphAccessToken $THE_GRAPH_API_TOKEN"
+      - name: Graph deploy ethereum
+        run: nix-shell --run "ts-node scripts/deploy.ts --contractAddress 0xce0a4f3e60178668c89f86d918a0585ca80e0f6d --subgraphName rainprotocol/orderbook-ethereum --network mainnet --blockNumber 17140914 --graphAccessToken $THE_GRAPH_API_TOKEN"
+
+      - name: Graph deploy polygon
+        run: nix-shell --run "ts-node scripts/deploy.ts --contractAddress 0x2de560ED9Ba8a6CDFe92e26862Ecb86e6e2d9705 --subgraphName rainprotocol/orderbook-sloshy --network matic --blockNumber 41785697 --graphAccessToken $THE_GRAPH_API_TOKEN"
+
+      - name: Graph deploy NHS BOT
+        run: nix-shell --run "ts-node scripts/deploy.ts --contractAddress 0xdd42ed000da6716044db223a0f9e6f02e6c86af3 --subgraphName rainprotocol/orderbook-0xdd42ed000da6716044 --network matic --blockNumber 42605680 --graphAccessToken $THE_GRAPH_API_TOKEN"
