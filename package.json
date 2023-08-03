@@ -27,7 +27,7 @@
     "@graphprotocol/graph-ts": "^0.28.1",
     "@openzeppelin/contracts-upgradeable": "=4.8.2",
     "@prb/math": "^3.3.1",
-    "@rainprotocol/assemblyscript-cbor": "git+https://github.com/rainprotocol/assemblyscript-cbor.git#6ab1823603e297d1f6e5ca880131cbbe2e31c360",
+    "@rainprotocol/assemblyscript-cbor": "^0.0.6",
     "0xsequence": "^0.39.0",
     "colors": "^1.4.0",
     "commander": "^10.0.0",
