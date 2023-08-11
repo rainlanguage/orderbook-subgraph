@@ -170,6 +170,8 @@ export function handleAddOrder(event: AddOrder): void {
   const orderHashHex = getEvenHex(event.params.orderHash.toHex());
 
   let order = new Order(orderHashHex);
+
+  order.ordersClears = [];
   order.transaction = createTransaction(
     event.transaction.hash.toHex(),
     event.block
@@ -403,8 +405,24 @@ export function handleClear(event: Clear): void {
   let orderClear = createOrderClear(event.transaction.hash.toHex());
   orderClear.sender = createAccount(sender).id;
   orderClear.clearer = createAccount(sender).id;
-  orderClear.orderA = createOrder(alice).id;
-  orderClear.orderB = createOrder(changetype<ClearAliceStruct>(bob)).id;
+
+  const order_A = createOrder(alice);
+  const order_B = createOrder(changetype<ClearAliceStruct>(bob));
+
+  orderClear.orderA = order_A.id;
+  orderClear.orderB = order_B.id;
+
+  // Saving order clears to each orders
+  // - ORDER A
+  const ordersClears_A = order_A.ordersClears;
+  if (ordersClears_A) ordersClears_A.push(orderClear.id);
+  order_A.ordersClears = ordersClears_A;
+  order_A.save();
+  // - ORDER B
+  const ordersClears_B = order_B.ordersClears;
+  if (ordersClears_B) ordersClears_B.push(orderClear.id);
+  order_B.ordersClears = ordersClears_B;
+  order_B.save();
 
   orderClear.owners = [
     createAccount(alice.owner).id,
