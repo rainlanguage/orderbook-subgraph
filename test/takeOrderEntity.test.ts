@@ -29,7 +29,7 @@ import { getEventArgs, waitForSubgraphToBeSynced } from "./utils";
 import { FetchResult } from "apollo-fetch";
 
 //TODO: Add more tests with more takeOrders and the new entities
-describe.only("TakeOrderEntity", () => {
+describe("TakeOrderEntity", () => {
   let tokenA: ReserveToken18;
   let tokenB: ReserveToken18;
 
@@ -40,7 +40,7 @@ describe.only("TakeOrderEntity", () => {
     await tokenB.initialize();
   });
 
-  it.only("should query TakeOrderEntity correctly after take an order", async function () {
+  it("should query TakeOrderEntity correctly after take an order", async function () {
     const [, alice, bob] = signers;
 
     const aliceInputVault = ethers.BigNumber.from(randomUint256());

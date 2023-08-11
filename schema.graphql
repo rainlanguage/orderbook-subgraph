@@ -75,6 +75,11 @@ type Order implements Event @entity {
   transaction: Transaction!
   emitter: Account!
   timestamp: BigInt!
+
+  "Take Order entities that use this order"
+  takeOrders: [TakeOrderEntity!] @derivedFrom(field: "order")
+  "Order Clear entities that use this order"
+  ordersClears: [OrderClear!]
 }
 
 # Created with AddOrder
