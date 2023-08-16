@@ -154,6 +154,15 @@ type TokenVault @entity {
   # OR when {Clear.b_.outputVault}-{Clear.b_.owner}-{Clear.b_.outputToken} match this TokenVault
   # "OrderClears that reference this vault, owner and token"
   orderClears: [OrderClear!]
+  takeOrders: [TokenVaultTakeOrder!] @derivedFrom(field: "tokenVault")
+}
+
+type TokenVaultTakeOrder @entity {
+    id: ID!
+    wasOutput: Boolean!
+    wasInput: Boolean!
+    takeOrder: TakeOrderEntity!
+    tokenVault: TokenVault!
 }
 
 # Created for every Deposit event
@@ -309,6 +318,7 @@ type TakeOrderEntity implements Event @entity {
 
   context: ContextEntity
 }
+
 
 # Create when an OrderClear entity is created
 type OrderClearStateChange @entity {

@@ -7,6 +7,7 @@ import {
   ClearOrderConfig,
   TokenVault,
   ContextEntity,
+  TokenVaultTakeOrder,
 } from "../generated/schema";
 import {
   AddOrder,
@@ -629,7 +630,6 @@ export function handleTakeOrder(event: TakeOrder): void {
       event.params.config.inputIOIndex.toI32()
     ].token.toHexString()
   );
-
   if (takeOrderEntity.outputDisplay != BigDecimal.zero()) {
     takeOrderEntity.IORatio = takeOrderEntity.inputDisplay.div(
       takeOrderEntity.outputDisplay
@@ -723,6 +723,19 @@ export function handleTakeOrder(event: TakeOrder): void {
       orderTokenVaultInput.token
     );
     orderTokenVaultInput.save();
+
+    let takeOrderTokenVault = TokenVaultTakeOrder.load(
+      `${takeOrderEntity.id}-${orderTokenVaultInput.id}`
+    );
+    if (!takeOrderTokenVault) {
+      takeOrderTokenVault = new TokenVaultTakeOrder(
+        `${takeOrderEntity.id}-${orderTokenVaultInput.id}`
+      );
+      takeOrderTokenVault.wasInput = true;
+      takeOrderTokenVault.wasOutput = false;
+      takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
+      takeOrderTokenVault.save();
+    }
   }
 
   // Updating order input/output balance
@@ -736,6 +749,19 @@ export function handleTakeOrder(event: TakeOrder): void {
       orderTokenVaultOutput.token
     );
     orderTokenVaultOutput.save();
+
+    let takeOrderTokenVault = TokenVaultTakeOrder.load(
+      `${takeOrderEntity.id}-${orderTokenVaultOutput.id}`
+    );
+    if (!takeOrderTokenVault) {
+      takeOrderTokenVault = new TokenVaultTakeOrder(
+        `${takeOrderEntity.id}-${orderTokenVaultOutput.id}`
+      );
+      takeOrderTokenVault.wasInput = false;
+      takeOrderTokenVault.wasOutput = true;
+      takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
+      takeOrderTokenVault.save();
+    }
   }
 }
 
