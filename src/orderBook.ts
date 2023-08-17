@@ -733,6 +733,7 @@ export function handleTakeOrder(event: TakeOrder): void {
       );
       takeOrderTokenVault.wasInput = true;
       takeOrderTokenVault.wasOutput = false;
+      takeOrderTokenVault.takeOrder = takeOrderEntity.id;
       takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
       takeOrderTokenVault.save();
     }
@@ -759,7 +760,8 @@ export function handleTakeOrder(event: TakeOrder): void {
       );
       takeOrderTokenVault.wasInput = false;
       takeOrderTokenVault.wasOutput = true;
-      takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
+      takeOrderTokenVault.takeOrder = takeOrderEntity.id;
+      takeOrderTokenVault.tokenVault = orderTokenVaultOutput.id;
       takeOrderTokenVault.save();
     }
   }
