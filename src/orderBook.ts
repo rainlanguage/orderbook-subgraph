@@ -7,6 +7,7 @@ import {
   ClearOrderConfig,
   TokenVault,
   ContextEntity,
+  TokenVaultTakeOrder,
 } from "../generated/schema";
 import {
   AddOrder,
@@ -31,6 +32,8 @@ import {
   JSONValue,
   JSONValueKind,
   TypedMap,
+  ValueKind,
+  ethereum,
   json,
   log,
   store,
@@ -39,6 +42,7 @@ import {
 import {
   AFTER_CLEAR_EVENT_TOPIC,
   CLEAR_EVENT_TOPIC,
+  NEW_EXPRESSION_EVENT_TOPIC,
   RAIN_META_DOCUMENT_HEX,
   TAKE_ORDER_EVENT_TOPIC,
   createAccount,
@@ -60,9 +64,10 @@ import {
   isHexadecimalString,
   stringToArrayBuffer,
   toDisplay,
+  tuplePrefix,
 } from "./utils";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
-import { OrderString } from "./orderJsonString";
+import { ExpressionJSONString, OrderString } from "./orderJsonString";
 
 export function handleContext(event: Context): void {
   const receipt = event.receipt;
@@ -272,6 +277,40 @@ export function handleAddOrder(event: AddOrder): void {
 
     order.validOutputs = auxOutput;
   }
+
+  const receipt = event.receipt;
+  if (receipt && receipt.logs.length > 0) {
+    const logs = receipt.logs;
+
+    const log_newExpression = logs.findIndex(
+      (log_) => log_.topics[0].toHex() == NEW_EXPRESSION_EVENT_TOPIC
+    );
+
+    if (log_newExpression != -1) {
+      const log_callerMeta = logs[log_newExpression];
+
+      const dataTuple = tuplePrefix.concat(log_callerMeta.data);
+
+      const decodedData = ethereum.decode(
+        "(address,bytes[],uint256[],uint256[])",
+        dataTuple
+      );
+
+      if (decodedData && decodedData.kind === ethereum.ValueKind.TUPLE) {
+        const newExpressionTuple = decodedData.toTuple();
+
+        const sources_ = newExpressionTuple[1].toBytesArray();
+        const constants_ = newExpressionTuple[2].toBigIntArray();
+
+        const expressionJsonString = new ExpressionJSONString(
+          sources_,
+          constants_
+        );
+        order.expressionJSONString = expressionJsonString.stringify();
+      }
+    }
+  }
+
   order.save();
 }
 
@@ -629,7 +668,6 @@ export function handleTakeOrder(event: TakeOrder): void {
       event.params.config.inputIOIndex.toI32()
     ].token.toHexString()
   );
-
   if (takeOrderEntity.outputDisplay != BigDecimal.zero()) {
     takeOrderEntity.IORatio = takeOrderEntity.inputDisplay.div(
       takeOrderEntity.outputDisplay
@@ -723,6 +761,20 @@ export function handleTakeOrder(event: TakeOrder): void {
       orderTokenVaultInput.token
     );
     orderTokenVaultInput.save();
+
+    let takeOrderTokenVault = TokenVaultTakeOrder.load(
+      `${takeOrderEntity.id}-${orderTokenVaultInput.id}`
+    );
+    if (!takeOrderTokenVault) {
+      takeOrderTokenVault = new TokenVaultTakeOrder(
+        `${takeOrderEntity.id}-${orderTokenVaultInput.id}`
+      );
+      takeOrderTokenVault.wasInput = true;
+      takeOrderTokenVault.wasOutput = false;
+      takeOrderTokenVault.takeOrder = takeOrderEntity.id;
+      takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
+      takeOrderTokenVault.save();
+    }
   }
 
   // Updating order input/output balance
@@ -736,6 +788,20 @@ export function handleTakeOrder(event: TakeOrder): void {
       orderTokenVaultOutput.token
     );
     orderTokenVaultOutput.save();
+
+    let takeOrderTokenVault = TokenVaultTakeOrder.load(
+      `${takeOrderEntity.id}-${orderTokenVaultOutput.id}`
+    );
+    if (!takeOrderTokenVault) {
+      takeOrderTokenVault = new TokenVaultTakeOrder(
+        `${takeOrderEntity.id}-${orderTokenVaultOutput.id}`
+      );
+      takeOrderTokenVault.wasInput = false;
+      takeOrderTokenVault.wasOutput = true;
+      takeOrderTokenVault.takeOrder = takeOrderEntity.id;
+      takeOrderTokenVault.tokenVault = orderTokenVaultOutput.id;
+      takeOrderTokenVault.save();
+    }
   }
 }
 

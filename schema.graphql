@@ -70,6 +70,7 @@ type Order implements Event @entity {
   validOutputs: [IO!]
 
   orderJSONString: String!
+  expressionJSONString: String
 
   "Timestamp when the order was added"
   transaction: Transaction!
@@ -154,6 +155,15 @@ type TokenVault @entity {
   # OR when {Clear.b_.outputVault}-{Clear.b_.owner}-{Clear.b_.outputToken} match this TokenVault
   # "OrderClears that reference this vault, owner and token"
   orderClears: [OrderClear!]
+  takeOrders: [TokenVaultTakeOrder!] @derivedFrom(field: "tokenVault")
+}
+
+type TokenVaultTakeOrder @entity {
+  id: ID!
+  wasOutput: Boolean!
+  wasInput: Boolean!
+  takeOrder: TakeOrderEntity!
+  tokenVault: TokenVault!
 }
 
 # Created for every Deposit event

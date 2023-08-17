@@ -39,6 +39,14 @@ export let CLEAR_EVENT_TOPIC =
 export let AFTER_CLEAR_EVENT_TOPIC =
   "0x3f20e55919cca701abb2a40ab72542b25ea7eed63a50f979dd2cd3231e5f488d";
 
+// ExpressionDeployer: NewExpression(address sender, bytes[] sources, uint256[] constants, uint256[] minOutputs)
+export let NEW_EXPRESSION_EVENT_TOPIC =
+  "0xf66a0c19428b142e06d7aa23d5f18b9b9ff08408fefcdfb8bb27cb34929f7786";
+
+export const tuplePrefix = Bytes.fromHexString(
+  "0000000000000000000000000000000000000000000000000000000000000020"
+);
+
 /**
  * From a given hexadecimal string, check if it's have an even length
  */
