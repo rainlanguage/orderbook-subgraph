@@ -10,6 +10,7 @@ import {
   Account,
   ContextEntity,
   ERC20,
+  LogCount,
   Order,
   OrderBook,
   OrderClear,
@@ -361,4 +362,15 @@ export function createContextEntity(
     }
   }
   return new ContextEntity("");
+}
+
+export function getLogCount(): string {
+  let logCount = LogCount.load("1");
+  if (!logCount) {
+    logCount = new LogCount("1");
+    logCount.count = BigInt.fromI32(0);
+  }
+  logCount.count = logCount.count.plus(BigInt.fromI32(1));
+  logCount.save();
+  return logCount.count.toString();
 }

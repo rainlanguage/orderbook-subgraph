@@ -8,6 +8,7 @@ import {
   TokenVault,
   ContextEntity,
   TokenVaultTakeOrder,
+  Log,
 } from "../generated/schema";
 import {
   AddOrder,
@@ -59,6 +60,7 @@ import {
   createVaultWithdraw,
   getEvenHex,
   getKeccak256FromBytes,
+  getLogCount,
   getOB,
   getRainMetaV1,
   isHexadecimalString,
@@ -595,12 +597,22 @@ export function handleDeposit(event: Deposit): void {
   );
 
   if (tokenVault) {
+    let before = tokenVault.balance;
     tokenVault.balance = tokenVault.balance.plus(event.params.config.amount);
     tokenVault.balanceDisplay = toDisplay(
       tokenVault.balance,
       event.params.config.token.toHexString()
     );
     tokenVault.save();
+
+    let log = new Log(getLogCount());
+    log.blockNumber = event.block.number;
+    log.timestamp = event.block.timestamp;
+    log.handler = "handleDeposit";
+    log.hash = event.transaction.hash;
+    log.data = `vault: ${tokenVault.id}, from: ${before}, to: ${tokenVault.balance}`;
+    log.subject = tokenVault.id;
+    log.save();
   }
 
   let vaultDeposit = createVaultDeposit(event.transaction.hash.toHex());
@@ -753,6 +765,7 @@ export function handleTakeOrder(event: TakeOrder): void {
   // Updating order input/output balance
   const orderTokenVaultInput = TokenVault.load(tokenVaultInput);
   if (orderTokenVaultInput) {
+    let before = orderTokenVaultInput.balance;
     orderTokenVaultInput.balance = orderTokenVaultInput.balance.plus(
       event.params.output
     );
@@ -775,11 +788,22 @@ export function handleTakeOrder(event: TakeOrder): void {
       takeOrderTokenVault.tokenVault = orderTokenVaultInput.id;
       takeOrderTokenVault.save();
     }
+
+
+    let log = new Log(getLogCount());
+    log.blockNumber = event.block.number;
+    log.timestamp = event.block.timestamp;
+    log.handler = "handleTakeOrder";
+    log.hash = event.transaction.hash;
+    log.data = `vault: ${orderTokenVaultInput.id}, from: ${before}, to: ${orderTokenVaultInput.balance}`;
+    log.subject = orderTokenVaultInput.id;
+    log.save();
   }
 
   // Updating order input/output balance
   const orderTokenVaultOutput = TokenVault.load(tokenVaultOutput);
   if (orderTokenVaultOutput) {
+    let before = orderTokenVaultOutput.balance;
     orderTokenVaultOutput.balance = orderTokenVaultOutput.balance.minus(
       event.params.input
     );
@@ -802,6 +826,15 @@ export function handleTakeOrder(event: TakeOrder): void {
       takeOrderTokenVault.tokenVault = orderTokenVaultOutput.id;
       takeOrderTokenVault.save();
     }
+
+    let log = new Log(getLogCount());
+    log.blockNumber = event.block.number;
+    log.timestamp = event.block.timestamp;
+    log.handler = "handleTakeOrder";
+    log.hash = event.transaction.hash;
+    log.data = `vault: ${orderTokenVaultOutput.id}, from: ${before}, to: ${orderTokenVaultOutput.balance}`;
+    log.subject = orderTokenVaultOutput.id;
+    log.save();
   }
 }
 
@@ -813,12 +846,22 @@ export function handleWithdraw(event: Withdraw): void {
   );
 
   if (tokenVault) {
+    let before = tokenVault.balance;
     tokenVault.balance = tokenVault.balance.minus(event.params.config.amount);
     tokenVault.balanceDisplay = toDisplay(
       tokenVault.balance,
       event.params.config.token.toHexString()
     );
     tokenVault.save();
+
+    let log = new Log(getLogCount());
+    log.blockNumber = event.block.number;
+    log.timestamp = event.block.timestamp;
+    log.handler = "handleWithdraw";
+    log.hash = event.transaction.hash;
+    log.data = `vault: ${tokenVault.id}, from: ${before}, to: ${tokenVault.balance}`;
+    log.subject = tokenVault.id;
+    log.save();
   }
 
   let vaultWithdraw = createVaultWithdraw(event.transaction.hash.toHex());

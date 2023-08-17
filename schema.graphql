@@ -393,6 +393,21 @@ type SignedContext @entity {
   context: [BigInt!]
 }
 
+type Log @entity {
+  id: ID!
+  hash: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  subject: String!
+  handler: String!
+  data: String!
+}
+
+type LogCount @entity {
+  id: ID!
+  count: BigInt!
+}
+
 interface Event {
   id: ID!
   "Transaction this event was emitted in."
