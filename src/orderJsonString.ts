@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { AddOrderOrderStruct } from "../generated/OrderBook/OrderBook";
 import { getEvenHex } from "./utils";
 
@@ -16,7 +16,13 @@ class JsonString {
     for (let i: i32 = 0; i < keys.length; i++) {
       const key = keys[i];
       const value = this._obj.get(key);
-      objs[i] = `"${key}":"${value}"`;
+      // "Array"
+      if (value.startsWith("[") && value.endsWith("]")) {
+        //
+        objs[i] = `"${key}":${value}`;
+      } else {
+        objs[i] = `"${key}":"${value}"`;
+      }
     }
 
     return `{${objs.join(",")}}`;
@@ -107,6 +113,24 @@ class Evaluable_String extends JsonString {
     _map.set("interpreter", getEvenHex(interpreter_.toHex()));
     _map.set("store", getEvenHex(store_.toHex()));
     _map.set("expression", getEvenHex(expression_.toHex()));
+
+    super(_map);
+  }
+}
+
+export class ExpressionJSONString extends JsonString {
+  constructor(sources_: Bytes[], constants_: BigInt[]) {
+    const _map: Map<string, string> = new Map();
+
+    const sources_string = sources_.map<string>(
+      (x: Bytes): string => `"${x.toHexString()}"`
+    );
+    const constants_string = constants_.map<string>(
+      (x): string => `"${x.toHexString()}"`
+    );
+
+    _map.set("sources", `[${sources_string.join(",")}]`);
+    _map.set("constants", `[${constants_string.join(",")}]`);
 
     super(_map);
   }
