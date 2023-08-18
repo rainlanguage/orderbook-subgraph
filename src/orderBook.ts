@@ -813,7 +813,7 @@ export function handleWithdraw(event: Withdraw): void {
   );
 
   if (tokenVault) {
-    tokenVault.balance = tokenVault.balance.minus(event.params.config.amount);
+    tokenVault.balance = tokenVault.balance.minus(event.params.amount);
     tokenVault.balanceDisplay = toDisplay(
       tokenVault.balance,
       event.params.config.token.toHexString()
