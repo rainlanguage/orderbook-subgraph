@@ -2,3 +2,6 @@
 	path = rain-protocol
 	url = https://github.com/rainprotocol/rain-protocol.git
 	branch = develop
+[submodule "rain.orderbook"]
+	path = rain.orderbook
+	url = https://github.com/rainprotocol/rain.orderbook.git

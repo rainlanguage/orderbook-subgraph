@@ -8,6 +8,7 @@ import {
   TokenVault,
   ContextEntity,
   TokenVaultTakeOrder,
+  OrderBook,
 } from "../generated/schema";
 import {
   AddOrder,
@@ -22,7 +23,7 @@ import {
   RemoveOrder,
   TakeOrder,
   Withdraw,
-  Initialized,
+  // Initialized,
   ClearAliceStruct,
 } from "../generated/OrderBook/OrderBook";
 import {
@@ -32,11 +33,11 @@ import {
   JSONValue,
   JSONValueKind,
   TypedMap,
-  ValueKind,
+  // ValueKind,
   ethereum,
   json,
-  log,
-  store,
+  // log,
+  // store,
 } from "@graphprotocol/graph-ts";
 
 import {
@@ -59,7 +60,7 @@ import {
   createVaultWithdraw,
   getEvenHex,
   getKeccak256FromBytes,
-  getOB,
+  // getOB,
   getRainMetaV1,
   isHexadecimalString,
   stringToArrayBuffer,
@@ -589,36 +590,36 @@ export function handleClear(event: Clear): void {
 
 export function handleDeposit(event: Deposit): void {
   let tokenVault = createTokenVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender,
-    event.params.config.token
+    event.params.token
   );
 
   if (tokenVault) {
-    tokenVault.balance = tokenVault.balance.plus(event.params.config.amount);
+    tokenVault.balance = tokenVault.balance.plus(event.params.amount);
     tokenVault.balanceDisplay = toDisplay(
       tokenVault.balance,
-      event.params.config.token.toHexString()
+      event.params.token.toHexString()
     );
     tokenVault.save();
   }
 
   let vaultDeposit = createVaultDeposit(event.transaction.hash.toHex());
   vaultDeposit.sender = createAccount(event.params.sender).id;
-  vaultDeposit.token = createToken(event.params.config.token).id;
-  vaultDeposit.vaultId = event.params.config.vaultId;
+  vaultDeposit.token = createToken(event.params.token).id;
+  vaultDeposit.vaultId = event.params.vaultId;
   vaultDeposit.vault = createVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender
   ).id;
-  vaultDeposit.amount = event.params.config.amount;
+  vaultDeposit.amount = event.params.amount;
   vaultDeposit.amountDisplay = toDisplay(
     vaultDeposit.amount,
-    event.params.config.token.toHexString()
+    event.params.token.toHexString()
   );
   vaultDeposit.tokenVault = tokenVault.id;
   vaultDeposit.vault = createVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender
   ).id;
   vaultDeposit.transaction = createTransaction(
@@ -630,11 +631,20 @@ export function handleDeposit(event: Deposit): void {
   vaultDeposit.save();
 }
 
-export function handleOrderExceedsMaxRatio(event: OrderExceedsMaxRatio): void {}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function handleOrderExceedsMaxRatio(event: OrderExceedsMaxRatio): void {
+  //
+}
 
-export function handleOrderNotFound(event: OrderNotFound): void {}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function handleOrderNotFound(event: OrderNotFound): void {
+  //
+}
 
-export function handleOrderZeroAmount(event: OrderZeroAmount): void {}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function handleOrderZeroAmount(event: OrderZeroAmount): void {
+  //
+}
 
 export function handleRemoveOrder(event: RemoveOrder): void {
   const orderHashHex = getEvenHex(event.params.orderHash.toHex());
@@ -807,41 +817,41 @@ export function handleTakeOrder(event: TakeOrder): void {
 
 export function handleWithdraw(event: Withdraw): void {
   let tokenVault = createTokenVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender,
-    event.params.config.token
+    event.params.token
   );
 
   if (tokenVault) {
     tokenVault.balance = tokenVault.balance.minus(event.params.amount);
     tokenVault.balanceDisplay = toDisplay(
       tokenVault.balance,
-      event.params.config.token.toHexString()
+      event.params.token.toHexString()
     );
     tokenVault.save();
   }
 
   let vaultWithdraw = createVaultWithdraw(event.transaction.hash.toHex());
   vaultWithdraw.sender = createAccount(event.params.sender).id;
-  vaultWithdraw.token = createToken(event.params.config.token).id;
-  vaultWithdraw.vaultId = event.params.config.vaultId;
+  vaultWithdraw.token = createToken(event.params.token).id;
+  vaultWithdraw.vaultId = event.params.vaultId;
   vaultWithdraw.vault = createVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender
   ).id;
-  vaultWithdraw.requestedAmount = event.params.config.amount;
+  vaultWithdraw.requestedAmount = event.params.targetAmount;
   vaultWithdraw.requestedAmountDisplay = toDisplay(
-    event.params.config.amount,
-    event.params.config.token.toHexString()
+    event.params.targetAmount,
+    event.params.token.toHexString()
   );
   vaultWithdraw.amount = event.params.amount;
   vaultWithdraw.amountDisplay = toDisplay(
     vaultWithdraw.amount,
-    event.params.config.token.toHexString()
+    event.params.token.toHexString()
   );
   vaultWithdraw.tokenVault = tokenVault.id;
   vaultWithdraw.vault = createVault(
-    event.params.config.vaultId.toString(),
+    event.params.vaultId.toString(),
     event.params.sender
   ).id;
   vaultWithdraw.transaction = createTransaction(
@@ -853,23 +863,23 @@ export function handleWithdraw(event: Withdraw): void {
   vaultWithdraw.save();
 }
 
-export function handleInitialized(event: Initialized): void {
-  let orderBook = getOB(event.address);
-  orderBook.address = event.address;
-  orderBook.deployer = event.transaction.from;
-  orderBook.save();
-}
-
 export function handleMetaV1(event: MetaV1): void {
   const metaV1 = getRainMetaV1(event.params.meta);
 
   const subjectHex = getEvenHex(event.params.subject.toHex());
 
-  // If the subject is equal to the OB address, then the meta data is the OB meta
+  // If the subject is equal to the emiter address, then the meta is for the OB.
+  // In this scenario, it is considered that is from DeployerDiscoverableMeta.
   if (subjectHex == event.address.toHex()) {
-    const orderBook = getOB(event.address);
-    orderBook.meta = metaV1.id;
-    orderBook.save();
+    let orderBook = OrderBook.load(event.address);
+    if (!orderBook) {
+      orderBook = new OrderBook(event.address);
+      orderBook.deployer = event.transaction.from;
+      orderBook.address = event.address;
+      orderBook.meta = metaV1.id;
+
+      orderBook.save();
+    }
   } else {
     // If not, the subject is an OrderHash then it's an Order meta
     const orderHash = getEvenHex(event.params.subject.toHex());
@@ -936,6 +946,7 @@ export function handleMetaV1(event: MetaV1): void {
 export class ContentMeta {
   rainMetaId: Bytes;
   payload: Bytes = Bytes.empty();
+  // eslint-disable-next-line @typescript-eslint/ban-types
   magicNumber: BigInt = BigInt.zero();
   contentType: string = "";
   contentEncoding: string = "";
