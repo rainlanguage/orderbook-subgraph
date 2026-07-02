@@ -72,9 +72,10 @@ type Order implements Event @entity {
   orderJSONString: String!
   expressionJSONString: String
 
-  "Timestamp when the order was added"
+  "Transaction that added the order"
   transaction: Transaction!
   emitter: Account!
+  "Timestamp when the order was added"
   timestamp: BigInt!
 
   "Take Order entities that use this order"
